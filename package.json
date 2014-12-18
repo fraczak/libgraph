@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org:fraczak/libgraph.git"
+    "url": "git://github.com/fraczak/libgraph.git"
   },
   "author": "Wojciech Fraczak",
   "license": "GPL",
   "dependencies": {
     "lodash": "~2.4.1",
-    "trie": "git://github.com/fraczak/trie.git"
+    "trie": "git+https://github.com/fraczak/trie.git"
   }
 }
