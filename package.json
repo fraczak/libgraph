@@ -1,0 +1,19 @@
+{
+  "name": "libgraph",
+  "version": "0.0.0",
+  "description": "graph lib in js/coffee",
+  "main": "index.js",
+  "scripts": {
+    "test": "coffee test.coffee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:fraczak/libgraph.git"
+  },
+  "author": "Wojciech Fraczak",
+  "license": "GPL",
+  "dependencies": {
+    "lodash": "~2.4.1",
+    "trie": "git://github.com/fraczak/trie.git"
+  }
+}

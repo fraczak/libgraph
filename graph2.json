@@ -1,0 +1,4 @@
+[
+ {"src": 0, "dst": 1, "weight":10},
+ {"src": 2, "dst": 1, "weight":6}
+]
