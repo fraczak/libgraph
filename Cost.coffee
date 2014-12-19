@@ -1,50 +1,35 @@
-ld = require "lodash"
-Graph = require "./Graph"
-nextPoint = require "./next-point"
-Dijkstra = require "./Dijkstra"
-maxFlow = require "./max-flow"
-# Demand
-demandExample = [
-    src: "v0", dst: "v1", demand: 20
-,
-    src: "v1", dst: "v0", demand: 10
-,
-    src: "v0", dst: "v2", demand: 5
-]
+ld        = require "lodash"
+Graph     = require "./Graph"
+Dijkstra  = require "./Dijkstra"
+maxFlow   = require "./max-flow"
 
-costExample = [
-    src: "v0"
-    dst: "v1"
-    bandwidth: [
-        east: 0, west: 0, cost:0
-    ,
-        east: 20, west: 30, cost:100
-    ,
-        east: 100, west: 100, cost:200
-    ]
-,
-    src: "v1"
-    dst: "v2"
-    bandwidth: [
-        east: 0, west: 0, cost:0
-    ,
-        east: 10, west: 10, cost:100
-    ,
-        east: 100, west: 100, cost:1000
-    ]
-    usage: east: 4
-,
-    src: "v0"
-    dst: "v2"
-    bandwidth: [
-        east: 0, west: 0, cost:0
-    ,
-        east: 10, west: 40, cost:100
-    ,
-        east: 400, west: 400, cost:100
-    ]
-    usage: east: 5, west: 20
-]
+
+findNextGE = (bw, point, i=0) ->
+    return -1 unless bw and bw[i]
+    for k in [i..bw.length-1]
+        if (point.east <= bw[k].east) and (point.west <= bw[k].west)
+            return k
+    return -1
+
+# returns, e.g., { east: {cost: 0, cap: 10}, west: {cost: 12, cap: 20} }
+nextPoint = (bw, point, i=0) ->
+    j = findNextGE bw, point, i
+    return if j < 0
+    res = {}
+    for dir in ["east","west"]
+        if (point[dir] is bw[j][dir])
+            aux = ld.clone point
+            aux[dir] += 1
+            k = findNextGE bw, aux, j
+            if k > j
+                res[dir] =
+                    cost: bw[k].cost - bw[j].cost
+                    capacity: bw[k][dir] - point[dir]
+        else
+            res[dir] =
+                cost: 0
+                capacity: bw[j][dir] - point[dir]
+    res
 
 class Cost
     constructor: (@costArray, @demandArray) ->
@@ -65,26 +50,25 @@ class Cost
         @demand = ld.transform @demandArray, (res, val, key) ->
             res[key] = ld.assign {}, val, {_id: key}
         , {}
-    updateWithFlow: (flow,demand) ->
-        # flow = {"0":{"_ref":*to_graph_edge, "capacity":5,"use":5}, .. }
+    updateWithFlow: (flow, demand) ->
+        # flow = {"0":{"_ref":graph_edge, "capacity":5, "use":5}, .. }
         for key, val of flow when val.use > 0
             graphEdge = val._ref
             if graphEdge.src is "__root__"
                 demand.demand -= val.use
             else
-                costEdge = graphEdge._ref
-                costEdge.usage[graphEdge._dir] += val.use
-                costEdge.usagePerDemand[graphEdge._dir][demand._id] ?= 0
-                costEdge.usagePerDemand[graphEdge._dir][demand._id] += val.use
+                costEdge = @cost[graphEdge.costEdgeId]
+                costEdge.usage[graphEdge.dir] += val.use
+                costEdge.usagePerDemand[graphEdge.dir][demand._id] ?= 0
+                costEdge.usagePerDemand[graphEdge.dir][demand._id] += val.use
         delete @demand[demand._id] unless demand.demand > 0
     getNextStepCostGraph:  ->
-        # usage {costEdge_id -> [est, west]}
         new Graph ld.transform @cost, (res, val, key) ->
             aux = nextPoint val.bandwidth, val.usage
             for dir, cc of aux
                 res.push
-                    _ref: val
-                    _dir: dir
+                    costEdgeId: val._id
+                    dir: dir
                     src: if dir is "east" then val.src else val.dst
                     dst: if dir is "east" then val.dst else val.src
                     capacity: cc.capacity
@@ -99,35 +83,23 @@ class Cost
     go: (done) ->
         demand = @chooseOneDemand()
         return done() unless demand
-#        console.log ".... 1", JSON.stringify demand
+#        console.log " #1 Choose a demand:", JSON.stringify demand
         graph = @getNextStepCostGraph()
-#        console.log ".... 2", JSON.stringify graph
+#        console.log " #2 Next level cost graph: ", JSON.stringify graph
         ddd = new Dijkstra graph, demand.src, (e) ->
             e.cost
-#        console.log ".... 3", JSON.stringify ddd
-        shortestPath = ddd.getPathTo demand.dst
-#        console.log ".... 4", JSON.stringify shortestPath
-        shortestPath.unshift
-            _ref: null # artificial "demand throttle" edge
-            _dir: "east"
+        shortestPathEdges = ddd.getEdgesTo demand.dst
+        shortestPathEdges.unshift
             src: "__root__"
             dst: demand.src
             cost: 0
             capacity: demand.demand
-        shortestPathDag = new Graph shortestPath
-#        console.log ".... 5", JSON.stringify shortestPathDag
+        shortestPathDag = new Graph shortestPathEdges
+#        console.log " #3 Shortest path graph:", JSON.stringify shortestPathDag
         flow = maxFlow shortestPathDag, "__root__", demand.dst, (e) ->
             e.capacity
-#        console.log ".... 6", JSON.stringify flow
-#        console.log flow
+#        console.log " #4 Max Flow:", JSON.stringify flow
         @updateWithFlow flow.flow, demand
-        setTimeout =>
-            console.log ".... calling"
-            @go done
-        , 0
-
-Cost.e =
-    demand: demandExample
-    cost: costExample
+        setTimeout (=> @go done), 0
 
 module.exports = Cost
