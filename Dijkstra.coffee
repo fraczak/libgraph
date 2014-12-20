@@ -39,6 +39,7 @@ class Dijkstra
 
     getEdgesTo: (dst) ->
         marker = {}
+        return unless @data[dst]
         queue = [].concat @data[dst].last
         pathEdges = []
         while queue.length > 0
@@ -47,9 +48,9 @@ class Dijkstra
                 marker[e._id] = e
                 pathEdges.push e
                 queue = queue.concat @data[e.src].last
-            else
-                console.log " * ", JSON.stringify e
-                console.log "   ", JSON.stringify marker[e._id]
+#            else
+#                console.log " * ", JSON.stringify e
+#                console.log "   ", JSON.stringify marker[e._id]
         pathEdges
 
     getDagTo: (dst) ->

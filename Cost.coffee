@@ -3,7 +3,15 @@ Graph     = require "./Graph"
 Dijkstra  = require "./Dijkstra"
 maxFlow   = require "./max-flow"
 
+LOG = (obj, indent=1) ->
+    head = ("" for i in [1..indent]).join " "
+    obj = JSON.stringify obj unless ld.isString obj
+    console.log head + obj
 
+LOG = ->
+
+# @return the index of the first point in 'bw',
+# which is "GreaterEqual" to 'point'
 findNextGE = (bw, point, i=0) ->
     return -1 unless bw and bw[i]
     for k in [i..bw.length-1]
@@ -11,7 +19,7 @@ findNextGE = (bw, point, i=0) ->
             return k
     return -1
 
-# returns, e.g., { east: {cost: 0, cap: 10}, west: {cost: 12, cap: 20} }
+# @return e.g., { east: {cost: 0, cap: 10}, west: {cost: 12, cap: 20} }
 nextPoint = (bw, point, i=0) ->
     j = findNextGE bw, point, i
     return if j < 0
@@ -75,39 +83,62 @@ class Cost
                     cost: cc.cost
         , []
     chooseOneDemand: ->
-#        console.log "DEMAND:", JSON.stringify @demand, "", 2
-#        console.log "COST  :", JSON.stringify @cost, "", 2
+        # return val for key, val of @demand
+        # heuristic: choosing a biggest one
+        aux = 0
+        res = null
         for key, val of @demand
-            return val
+            if val.demand > aux
+                res = val
+                aux = val.demand
+        res
 
+    # callback @done(err) will be called without args if success
     go: (done) ->
+        LOG " 1. Choosing a demand to process:"
         demand = @chooseOneDemand()
         return done() unless demand
-#        console.log " #1 Choose a demand:", JSON.stringify demand
+        LOG demand, 2
+
+        LOG " 2. Setting the next threshold in flows:"
         graph = @getNextStepCostGraph()
-#        console.log " #2 Next level cost graph: ", JSON.stringify graph
+        LOG graph, 2
+
+        LOG " 3. Calculating the shortest path graph:"
         ddd = new Dijkstra graph, demand.src, (e) ->
             e.cost
         shortestPathEdges = ddd.getEdgesTo demand.dst
+        if not shortestPathEdges
+            LOG " *** Stopping: No connection found!", 2
+            return done "failed to find a feasible solution"
         shortestPathEdges.unshift
             src: "__root__"
             dst: demand.src
             cost: 0
             capacity: demand.demand
         shortestPathDag = new Graph shortestPathEdges
-#        console.log " #3 Shortest path graph:", JSON.stringify shortestPathDag
+        LOG shortestPathDag, 2
+
+        LOG " 4. Calculating the max flow:"
         flow = maxFlow shortestPathDag, "__root__", demand.dst, (e) ->
             e.capacity
-#        console.log " #4 Max Flow:", JSON.stringify flow
+        LOG flow
+
         @updateWithFlow flow.flow, demand
         setTimeout (=> @go done), 0
 
-    print: ->
+    toString: ->
+        s = JSON.stringify
+        res =      " ====== DEMAND DISTRIBUTION ======\n"
+        res +=     " == non distributed demand: #{s @demand}\n"
         totalCost = 0
         for k, v of @cost
             u = findNextGE v.bandwidth, v.usage
+            continue unless v.bandwidth[u].cost
             totalCost += v.bandwidth[u].cost
-            console.log "#{k}[#{v.src} -> #{v.dst}], Cost: #{v.bandwidth[u].cost}, Usage: #{JSON.stringify v.usage}, step: [#{JSON.stringify v.bandwidth[u]}]"
-            console.log "   #{JSON.stringify v.usagePerDemand}"
-        console.log "Total cost: #{totalCost}"
+            res += "   #{k}. link #{v.src} -> #{v.dst}, cost: #{v.bandwidth[u].cost}\n"
+            res += "      total usage  : #{s v.usage} / #{s v.bandwidth[u]} \n"
+            res += "      distribution : #{s v.usagePerDemand}\n"
+        res +=     " ------- Total cost: #{totalCost} -------"
+
 module.exports = Cost
