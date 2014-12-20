@@ -75,8 +75,8 @@ class Cost
                     cost: cc.cost
         , []
     chooseOneDemand: ->
-        console.log "DEMAND:", JSON.stringify @demand, "", 2
-        console.log "COST  :", JSON.stringify @cost, "", 2
+#        console.log "DEMAND:", JSON.stringify @demand, "", 2
+#        console.log "COST  :", JSON.stringify @cost, "", 2
         for key, val of @demand
             return val
 
@@ -102,4 +102,12 @@ class Cost
         @updateWithFlow flow.flow, demand
         setTimeout (=> @go done), 0
 
+    print: ->
+        totalCost = 0
+        for k, v of @cost
+            u = findNextGE v.bandwidth, v.usage
+            totalCost += v.bandwidth[u].cost
+            console.log "#{k}[#{v.src} -> #{v.dst}], Cost: #{v.bandwidth[u].cost}, Usage: #{JSON.stringify v.usage}, step: [#{JSON.stringify v.bandwidth[u]}]"
+            console.log "   #{JSON.stringify v.usagePerDemand}"
+        console.log "Total cost: #{totalCost}"
 module.exports = Cost

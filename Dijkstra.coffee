@@ -44,11 +44,12 @@ class Dijkstra
         while queue.length > 0
             e = queue.shift()
             if not marker[e._id]
-                marker[e._id] = true
+                marker[e._id] = e
                 pathEdges.push e
                 queue = queue.concat @data[e.src].last
             else
                 console.log " * ", JSON.stringify e
+                console.log "   ", JSON.stringify marker[e._id]
         pathEdges
 
     getDagTo: (dst) ->
