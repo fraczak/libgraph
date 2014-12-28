@@ -3,6 +3,7 @@ dfs = (graph, root) ->
     #   treeEdges: [...],
     #   crossEdges: [...]
     #   backEdges: [...] }
+    edges = graph.edges
     res =
         visit: {}
         treeEdges: []
@@ -10,9 +11,9 @@ dfs = (graph, root) ->
         backEdges: []
     time = 1
     _run = (v,treeEdge) ->
-        res.visit[v] = disvoceryTime: time++, treeEdge: treeEdge
+        res.visit[v] = discoveryTime: time++, treeEdge: treeEdge
         for e in graph.src[v] or []
-            y = e.dst
+            y = edges[e].dst
             if res.visit[y]
                 if res.visit[y].closeTime
                     res.crossEdges.push e
@@ -22,7 +23,7 @@ dfs = (graph, root) ->
                 res.treeEdges.push e
                 _run y, e
         res.visit[v].closeTime = time++
-    _run root, null
+    _run root
     res
 
 module.exports = dfs

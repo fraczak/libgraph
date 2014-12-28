@@ -1,7 +1,7 @@
 ld        = require "lodash"
-Graph     = require "./Graph"
-Dijkstra  = require "./Dijkstra"
-maxFlow   = require "./max-flow"
+Graph     = require "../Graph"
+dijkstra  = require "../dijkstra"
+maxFlow   = require "../max-flow"
 
 LOG = (obj, indent=1) ->
     head = ("" for i in [1..indent]).join " "
@@ -9,6 +9,12 @@ LOG = (obj, indent=1) ->
     console.log head + obj
 
 LOG = ->
+
+costFn = (e) ->
+    e.cost
+
+capacityFn = (e) ->
+    e.capacity
 
 # @return the index of the first point in 'bw',
 # which is "GreaterEqual" to 'point'
@@ -58,10 +64,10 @@ class Cost
         @demand = ld.transform @demandArray, (res, val, key) ->
             res[key] = ld.assign {}, val, {_id: key}
         , {}
-    updateWithFlow: (flow, demand) ->
-        # flow = {"0":{"_ref":graph_edge, "capacity":5, "use":5}, .. }
+    updateWithFlow: (graph, flow, demand) ->
+        # flow = {"0":{"capacity":5, "use":5}, .. }
         for key, val of flow when val.use > 0
-            graphEdge = val._ref
+            graphEdge = graph.edges[key]
             if graphEdge.src is "__root__"
                 demand.demand -= val.use
             else
@@ -105,12 +111,17 @@ class Cost
         LOG graph, 2
 
         LOG " 3. Calculating the shortest path graph:"
-        ddd = new Dijkstra graph, demand.src, (e) ->
-            e.cost
-        shortestPathEdges = ddd.getEdgesTo demand.dst
-        if not shortestPathEdges
+        #ddd = new Dijkstra graph, demand.src, (e) ->
+        #    e.cost
+        #shortestPathEdges = ddd.getEdgesTo demand.dst
+
+        shortestPathEdges = dijkstra(graph,costFn)
+            .from(demand.src).edgesTo(demand.dst)
+        if shortestPathEdges is undefined
             LOG " *** Stopping: No connection found!", 2
             return done "failed to find a feasible solution"
+        shortestPathEdges = ld.map shortestPathEdges, (i) ->
+            graph.edges[i]
         shortestPathEdges.unshift
             src: "__root__"
             dst: demand.src
@@ -120,11 +131,10 @@ class Cost
         LOG shortestPathDag, 2
 
         LOG " 4. Calculating the max flow:"
-        flow = maxFlow shortestPathDag, "__root__", demand.dst, (e) ->
-            e.capacity
+        flow = maxFlow shortestPathDag, "__root__", demand.dst, capacityFn
         LOG flow
 
-        @updateWithFlow flow.flow, demand
+        @updateWithFlow shortestPathDag, flow.flow, demand
         setTimeout (=> @go done), 0
 
     toString: ->

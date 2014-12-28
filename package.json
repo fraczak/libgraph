@@ -4,6 +4,7 @@
   "description": "graph lib in js/coffee",
   "main": "index.js",
   "scripts": {
+    "install": "coffee -c .",
     "test": "coffee test.coffee"
   },
   "repository": {
@@ -15,5 +16,8 @@
   "dependencies": {
     "lodash": "~2.4.1",
     "trie": "git+https://github.com/fraczak/trie.git"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.8.0"
   }
 }

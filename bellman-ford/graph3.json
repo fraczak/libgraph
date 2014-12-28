@@ -1,0 +1,12 @@
+[
+ {"src":0, "dst":1, "weight":4},
+ {"src":0, "dst":1, "weight":10},
+ {"src":1, "dst":2, "weight":10},
+ {"src":2, "dst":3, "weight":10},
+ {"src":3, "dst":0, "weight":12},
+ {"src":0, "dst":3, "weight":6},
+ {"src":3, "dst":2, "weight":6},
+ {"src":2, "dst":1, "weight":-5},
+ {"src":1, "dst":0, "weight":6},
+ {"src":0, "dst":2, "weight":-1}
+]

@@ -1,35 +1,39 @@
 ld           = require "lodash"
-Graph        = require "./Graph"
-findPath     = require "./find-path"
+Graph        = require "../Graph"
+findPath     = require "../find-path"
 
 
 # returns { maxFlow: 250,
-#           flow: {e1: {_ref: *to_graph_edge, use:5, capacity:10}, ...}}
+#           flow: {e1: {use:5, capacity:10}, ...}}
 maxFlow = (graph, src, dst, capacityFn) ->
+    maxCapacity = 0
     flow = ld.transform graph.edges, (res,val,key) ->
+        capacity = capacityFn val
+        maxCapacity = Math.max maxCapacity, capacity
         res[key] =
-            _ref: val
-            capacity: capacityFn val
+            capacity: capacity
             use: 0
     , {}
     return {maxFlow: Infinity, flow: flow} if src is dst
 
     maxFlow = 0
 
+    edges = graph.edges
+
     genEdges = ->
         res = []
         for key,val of flow
-            e = graph.edges[key]
+            e = edges[key]
             if val.use > 0
                 res.push
-                    _ref: val
+                    _ref: key
+                    dir: ":bck"
                     capacity: val.use
                     src: e.dst, dst: e.src
-                    dir: ":bck"
             rem = val.capacity - val.use
             if rem > 0
                 res.push
-                    _ref: val
+                    _ref: key
                     capacity: rem
                     src: e.src, dst: e.dst
                     dir: ":fwd"
@@ -37,17 +41,19 @@ maxFlow = (graph, src, dst, capacityFn) ->
 
     aPath = null
 
-    while (aPath = findPath (new Graph genEdges()), src, dst)
+    while (aPath = findPath (tempGraph = new Graph genEdges()), src, dst)
+        tempEdges = tempGraph.edges
         useCapacity = ld.reduce aPath, (res,val) ->
-            Math.min res, val.capacity
-        , aPath[0].capacity
+            Math.min res, tempEdges[val].capacity
+        , maxCapacity
         throw new Error "Capacity is ZERO!" unless useCapacity
         maxFlow += useCapacity
         for val in aPath
-            if (val.dir is ':fwd')
-                val._ref.use += useCapacity
+            e = tempEdges[val]
+            if (e.dir is ':fwd')
+                flow[e._ref].use += useCapacity
             else
-                val._ref.use -= useCapacity
+                flow[e._ref].use -= useCapacity
 
     {maxFlow,flow}
 
