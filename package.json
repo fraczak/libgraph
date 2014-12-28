@@ -2,14 +2,14 @@
   "name": "libgraph",
   "version": "0.0.0",
   "description": "graph lib in js/coffee",
-  "main": "index.js",
+  "main": "Graph.js",
   "scripts": {
     "install": "coffee -c .",
     "test": "coffee test.coffee"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/fraczak/libgraph.git"
+    "url": "git+https://github.com/fraczak/libgraph.git"
   },
   "author": "Wojciech Fraczak",
   "license": "GPL",
