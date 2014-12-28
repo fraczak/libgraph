@@ -1,5 +1,5 @@
 trieFactory = require "trie"
-Graph       = require "./Graph"
+Graph       = require "../Graph"
 
 pad = (number, size) ->
     res = ""+number
@@ -9,12 +9,13 @@ pad = (number, size) ->
     throw "Number #{number} is not correctly stringified"
 
 class Dijkstra
-    constructor: (@graph, @src, @weightFn) ->
+    constructor: (@graph, src, weightFn) ->
+        edges = graph.edges
         @data = do ->
             weightFn ?= -> 1
             toStrFn = do ->
                 maxLen = 0
-                for l,e of graph.edges
+                for e in edges
                     maxLen = maxLen + weightFn e
                 maxLen = (""+maxLen).length
                 (x) ->
@@ -22,19 +23,19 @@ class Dijkstra
             res = {}
             queue = trieFactory toStrFn
             res[src] = last:[], len:0
-            for e in graph.src[src] or []
-                queue.add edge: e, len: weightFn e
+            for i in graph.src[src] or []
+                queue.add i: i, len: weightFn edges[i]
             while (queue.size() > 0)
                 elem = queue.getNth 0
                 queue.del elem
-                {edge,len} = elem
-                v = edge.dst
+                {i,len} = elem
+                v = edges[i].dst
                 if (not res[v])
-                    res[v] = last: [edge], len: len
+                    res[v] = last: [i], len: len
                     for ee in graph.src[v] or []
-                        queue.add edge: ee, len: len + weightFn ee
+                        queue.add i: ee, len: len + weightFn edges[ee]
                 else if res[v].len is len
-                    res[v].last.push edge
+                    res[v].last.push i
             return res
 
     getEdgesTo: (dst) ->
@@ -44,16 +45,13 @@ class Dijkstra
         pathEdges = []
         while queue.length > 0
             e = queue.shift()
-            if not marker[e._id]
-                marker[e._id] = e
+            if not marker[e]
+                marker[e] = true
                 pathEdges.push e
-                queue = queue.concat @data[e.src].last
-#            else
-#                console.log " * ", JSON.stringify e
-#                console.log "   ", JSON.stringify marker[e._id]
+                queue = queue.concat @data[@graph.edges[e].src].last
         pathEdges
 
     getDagTo: (dst) ->
-        new Graph @getEdgesTo dst
+        new Graph (@graph.edges[i] for i in @getEdgesTo dst)
 
 module.exports = Dijkstra

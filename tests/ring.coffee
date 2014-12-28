@@ -16,7 +16,7 @@ bw =
         {east:20, west:10, cost:200} ]
 
 ring = [
-    {src:0, dst:1, bandwidth:bw.b2}
+    {src:0, dst:1, bandwidth:bw.b1}
     {src:1, dst:2, bandwidth:bw.b2}
     {src:2, dst:3, bandwidth:bw.b2}
     {src:3, dst:4, bandwidth:bw.b2}

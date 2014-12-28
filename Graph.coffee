@@ -1,16 +1,12 @@
 ld = require "lodash"
 class Graph
-    constructor: (@edgeArray) ->
+    constructor: (@edges) ->
         @vertices = {}
-        @edges = ld.transform @edgeArray, (res,val,i) ->
-            key = ""+i
-            res[key]= ld.assign {}, val, {_id: key}
-        , {}
         for dir in ['src','dst']
             aux = @[dir] = {}
-            for l,e of @edges
+            for e,i in @edges
                 @vertices[v = e[dir]] = {}
                 aux[v] ?= []
-                aux[v].push e
+                aux[v].push i
 
 module.exports = Graph
