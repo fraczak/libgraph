@@ -10,6 +10,10 @@ LOG = (obj, indent=1) ->
 
 LOG = ->
 
+setImmediate ?= (fn) ->
+    setTimeout fn, 0
+
+
 costFn = (e) ->
     e.cost
 
@@ -119,7 +123,7 @@ class Cost
             .from(demand.src).edgesTo(demand.dst)
         if shortestPathEdges is undefined
             LOG " *** Stopping: No connection found!", 2
-            return done "failed to find a feasible solution"
+            return done "Failed to find a feasible solution!"
         shortestPathEdges = ld.map shortestPathEdges, (i) ->
             graph.edges[i]
         shortestPathEdges.unshift
@@ -137,7 +141,8 @@ class Cost
         @updateWithFlow shortestPathDag, flow.flow, demand
 
         if preemptive
-            setTimeout (=> @go done, true), 0
+            setImmediate =>
+                @go done, true
         else
             @go done
     toString: ->
