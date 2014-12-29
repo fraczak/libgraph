@@ -10,8 +10,9 @@ LOG = (obj, indent=1) ->
 
 LOG = ->
 
-setImmediate ?= (fn) ->
-    setTimeout fn, 0
+if ('function' isnt typeof setImmediate)
+    setImmediate = (fn) ->
+        setTimeout fn, 0
 
 
 costFn = (e) ->
