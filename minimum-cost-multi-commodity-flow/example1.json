@@ -1,0 +1,54 @@
+{
+    "$": {
+        "$0"     : {"east":0,"west":0,"cost":0},
+        "$pidgin": {"east":1,"west":0,"cost":10, "name":"My white old pidgin"},
+        "$adsl"  : {"east":10, "west":4, "cost":50, "name":"ADSL 8/4"},
+        "$wire"  : {"east":16,"west":16, "cost":100, "name":"Wire 10"},
+        "$fiber" : {"east":60, "west":60, "cost":1000, "name":"Fiber 60"},
+
+        "$wall"  : {"east":10000, "west":10000, "cost": 100000, "name":"WALL"},
+
+        "$opt_dsl" : [ "$0", "$adsl", "$wall" ],
+        "$opt_wf" : [ "$0", "$wire", "$fiber", "$wall" ],
+        "$opt_p" : [ "$0", "$pidgin" ],
+        "$w" : [ {"east":100,"west":100,"cost":0,"name":"Existing Wire 8"} ]
+    },
+    "sites": {
+        "0": {"name":"Home",       "x": 90, "y": 200},
+        "1": {"name":"Triangle A", "x": 180, "y": 90},
+        "2": {"name":"Router",     "x": 100, "y": 0},
+        "3": {"name":"Triangle B", "x": 20, "y": 60},
+        "4": {"name":"Triangle C", "x": 0, "y": 120}
+    },
+    "topo": [
+        { "src": "0", "dst": "1", "bandwidth": "$opt_dsl" },
+        { "src": "0", "dst": "1", "bandwidth": "$opt_dsl" },
+
+        { "src": "0", "dst": "3", "bandwidth": "$w" },
+        { "src": "0", "dst": "4", "bandwidth": "$opt_wf" },
+
+        { "src": "1", "dst": "2", "bandwidth": "$opt_dsl" },
+        { "src": "1", "dst": "2", "bandwidth": "$opt_dsl" },
+
+        { "src": "1", "dst": "4", "bandwidth": "$opt_p" },
+
+        { "src": "2", "dst": "3", "bandwidth": "$opt_dsl" },
+        { "src": "2", "dst": "3", "bandwidth": "$opt_dsl" },
+
+        { "src": "3", "dst": "4", "bandwidth": "$opt_dsl" },
+        { "src": "3", "dst": "4", "bandwidth": "$opt_dsl" },
+        { "src": "3", "dst": "4", "bandwidth": "$opt_dsl" },
+
+        { "src": "4", "dst": "0", "bandwidth": "$opt_dsl" }
+    ],
+    "demand": [
+        {"src": "0", "dst": 2, "demand" : 10 },
+        {"src": "0", "dst": 3, "demand" : 10 },
+        {"src": "2", "dst": 0, "demand" : 10 },
+        {"src": "1", "dst": 4, "demand" : 8 },
+        {"src": "4", "dst": 3, "demand" : 8 },
+        {"src": "3", "dst": 1, "demand" : 8 },
+        {"src": "2", "dst": 4, "demand" : 2 },
+        {"src": "4", "dst": 2, "demand" : 2 }
+    ]
+}

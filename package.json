@@ -18,6 +18,7 @@
     "trie": "git+https://github.com/fraczak/trie.git"
   },
   "devDependencies": {
-    "coffee-script": "~1.8.0"
+    "coffee-script": "~1.8.0",
+    "ajson": "git+https://github.com/fraczak/ajson.git"
   }
 }

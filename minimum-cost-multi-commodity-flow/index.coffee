@@ -100,7 +100,7 @@ class Cost
         res
 
     # callback @done(err) will be called without args if success
-    go: (done) ->
+    go: (done, preemptive = false) ->
         LOG " 1. Choosing a demand to process:"
         demand = @chooseOneDemand()
         return done() unless demand
@@ -135,8 +135,11 @@ class Cost
         LOG flow
 
         @updateWithFlow shortestPathDag, flow.flow, demand
-        setTimeout (=> @go done), 0
 
+        if preemptive
+            setTimeout (=> @go done, true), 0
+        else
+            @go done
     toString: ->
         s = JSON.stringify
         res =      " ====== DEMAND DISTRIBUTION ======\n"
@@ -144,8 +147,8 @@ class Cost
         totalCost = 0
         for k, v of @cost
             u = findNextGE v.bandwidth, v.usage
-            continue unless v.bandwidth[u].cost
             totalCost += v.bandwidth[u].cost
+            continue unless v.usage.east + v.usage.west > 0
             res += "   #{k}. link #{v.src} -> #{v.dst}, cost: #{v.bandwidth[u].cost}\n"
             res += "      total usage  : #{s v.usage} / #{s v.bandwidth[u]} \n"
             res += "      distribution : #{s v.usagePerDemand}\n"
