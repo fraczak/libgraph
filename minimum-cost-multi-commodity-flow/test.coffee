@@ -1,4 +1,4 @@
-Cost = require "./"
+minCost = require "./"
 costData =
     demand: [
         { src: "v0", dst: "v1", demand: 20 }
@@ -33,9 +33,7 @@ costData =
         usage: east: 5, west: 20
     ]
 
-cost = new Cost costData.cost, costData.demand
-cost.go ->
-    console.log cost.cost
+console.log (minCost costData.cost, costData.demand).toString()
 
 # RING
 bw =
@@ -71,8 +69,8 @@ demand = [
 
 ]
 
-cost = new Cost ring, demand
-cost.go (err) ->
+minCost ring, demand, (err, result) ->
     console.log "Problem: #{err}" if err
-    console.log cost.toString()
+    console.log result.toString()
 
+require "./example1.coffee"

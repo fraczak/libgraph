@@ -4,16 +4,13 @@ findPath     = require "../find-path"
 
 
 # returns { maxFlow: 250,
-#           flow: {e1: {use:5, capacity:10}, ...}}
+#           flow: [{use:5, capacity:10}, ...]}
 maxFlow = (graph, src, dst, capacityFn) ->
     maxCapacity = 0
-    flow = ld.transform graph.edges, (res,val,key) ->
+    flow = ld.map graph.edges, (val) ->
         capacity = capacityFn val
         maxCapacity = Math.max maxCapacity, capacity
-        res[key] =
-            capacity: capacity
-            use: 0
-    , {}
+        { capacity, use: 0 }
     return {maxFlow: Infinity, flow: flow} if src is dst
 
     maxFlow = 0
@@ -22,18 +19,18 @@ maxFlow = (graph, src, dst, capacityFn) ->
 
     genEdges = ->
         res = []
-        for key,val of flow
-            e = edges[key]
+        for val,i in flow
+            e = edges[i]
             if val.use > 0
                 res.push
-                    _ref: key
+                    _ref: i
                     dir: ":bck"
                     capacity: val.use
                     src: e.dst, dst: e.src
             rem = val.capacity - val.use
             if rem > 0
                 res.push
-                    _ref: key
+                    _ref: i
                     capacity: rem
                     src: e.src, dst: e.dst
                     dir: ":fwd"

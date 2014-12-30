@@ -1,14 +1,12 @@
 ajson = require "ajson"
 exampleData = require "./example1.json"
-Cost = require "../minimum-cost-multi-commodity-flow"
+minCost = require "../minimum-cost-multi-commodity-flow"
 
 exampleData = ajson.unalias exampleData
 
-cost = new Cost exampleData.topo, exampleData.demand
-
-cost.go (err) ->
+minCost exampleData.topo, exampleData.demand, (err, result) ->
     if err
         console.log err
     else
-        console.log cost.toString()
+        console.log result.toString()
         

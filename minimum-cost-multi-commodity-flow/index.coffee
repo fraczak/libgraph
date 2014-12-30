@@ -3,18 +3,6 @@ Graph     = require "../Graph"
 dijkstra  = require "../dijkstra"
 maxFlow   = require "../max-flow"
 
-LOG = (obj, indent=1) ->
-    head = ("" for i in [1..indent]).join " "
-    obj = JSON.stringify obj unless ld.isString obj
-    console.log head + obj
-
-LOG = ->
-
-if ('function' isnt typeof setImmediate)
-    setImmediate = (fn) ->
-        setTimeout fn, 0
-
-
 costFn = (e) ->
     e.cost
 
@@ -50,81 +38,73 @@ nextPoint = (bw, point, i=0) ->
                 capacity: bw[j][dir] - point[dir]
     res
 
-class Cost
-    constructor: (@costArray, @demandArray) ->
-        @cost = ld.transform @costArray, (res, val, i) ->
-            res[i] =
-                _id: i
-                src: val.src
-                dst: val.dst
-                bandwidth: (ld.clone val.bandwidth).sort (a,b) ->
-                    a.cost - b.cost
-                usage:
-                    east: val.usage?.east or 0
-                    west: val.usage?.west or 0
-                usagePerDemand:
-                    east: {}
-                    west: {}
-        , {}
-        @demand = ld.transform @demandArray, (res, val, key) ->
-            res[key] = ld.assign {}, val, {_id: key}
-        , {}
-    updateWithFlow: (graph, flow, demand) ->
-        # flow = {"0":{"capacity":5, "use":5}, .. }
-        for key, val of flow when val.use > 0
-            graphEdge = graph.edges[key]
-            if graphEdge.src is "__root__"
-                demand.demand -= val.use
-            else
-                costEdge = @cost[graphEdge.costEdgeId]
-                costEdge.usage[graphEdge.dir] += val.use
-                costEdge.usagePerDemand[graphEdge.dir][demand._id] ?= 0
-                costEdge.usagePerDemand[graphEdge.dir][demand._id] += val.use
-        delete @demand[demand._id] unless demand.demand > 0
-    getNextStepCostGraph:  ->
-        new Graph ld.transform @cost, (res, val, key) ->
-            aux = nextPoint val.bandwidth, val.usage
-            for dir, cc of aux
-                res.push
-                    costEdgeId: val._id
-                    dir: dir
-                    src: if dir is "east" then val.src else val.dst
-                    dst: if dir is "east" then val.dst else val.src
-                    capacity: cc.capacity
-                    cost: cc.cost
-        , []
-    chooseOneDemand: ->
-        # return val for key, val of @demand
-        # heuristic: choosing a biggest one
-        aux = 0
-        res = null
-        for key, val of @demand
-            if val.demand > aux
-                res = val
-                aux = val.demand
-        res
+getNextStepCostGraph = (topo,result) ->
+    new Graph ld.transform result, (res, val, i) ->
+        for dir, {capacity,cost} of nextPoint val.bandwidth, val.usage
+            res.push
+                topoLinkIdx: i
+                dir: dir
+                src: if dir is "east" then topo[i].src else topo[i].dst
+                dst: if dir is "east" then topo[i].dst else topo[i].src
+                capacity: capacity
+                cost: cost
 
-    # callback @done(err) will be called without args if success
-    go: (done, preemptive = false) ->
-        LOG " 1. Choosing a demand to process:"
-        demand = @chooseOneDemand()
-        return done() unless demand
-        LOG demand, 2
+chooseOneDemand = (demands) ->
+    # return val for key, val of demands
+    # heuristic: choosing a biggest one
+    aux = 0
+    res = undefined
+    for key, d of demands
+        if d.demand > aux
+            res = d
+            aux = d.demand
+    res
 
-        LOG " 2. Setting the next threshold in flows:"
-        graph = @getNextStepCostGraph()
-        LOG graph, 2
+minimumCost = (topo, demands, cb) ->
+    result = ld.map topo, (link) ->
+        bandwidth: (ld.clone link.bandwidth).sort (a,b) ->
+            a.cost - b.cost
+        usage:
+            east: link.usage?.east or 0
+            west: link.usage?.west or 0
+        usagePerDemand:
+            east: {}
+            west: {}
 
-        LOG " 3. Calculating the shortest path graph:"
-        #ddd = new Dijkstra graph, demand.src, (e) ->
-        #    e.cost
-        #shortestPathEdges = ddd.getEdgesTo demand.dst
 
-        shortestPathEdges = dijkstra(graph,costFn)
+    demands = ld.transform demands, (res, val, key) ->
+        res[key] = ld.assign {}, val, {_id: key}
+    , {}
+
+    result.toString = ->
+        s = JSON.stringify
+        res =      " ====== DEMAND DISTRIBUTION ======\n"
+        res +=     " == non distributed demand: #{s demands}\n"
+        totalCost = 0
+        for v, k in result
+            u = findNextGE v.bandwidth, v.usage
+            totalCost += v.bandwidth[u].cost
+            continue unless v.usage.east + v.usage.west > 0
+            res += "   #{k}. link #{topo[k].src} -> #{topo[k].dst}, cost: #{v.bandwidth[u].cost}\n"
+            res += "      total usage  : #{s v.usage} / #{s v.bandwidth[u]} \n"
+            res += "      distribution : #{s v.usagePerDemand}\n"
+        res +=     " ------- Total cost: #{totalCost} -------"
+
+
+    step = (demand) ->
+        if demand is undefined
+            return result unless cb
+            return cb null, result
+
+        graph = getNextStepCostGraph topo, result
+
+        shortestPathEdges = dijkstra(graph, costFn)
             .from(demand.src).edgesTo(demand.dst)
+
         if shortestPathEdges is undefined
-            LOG " *** Stopping: No connection found!", 2
-            return done "Failed to find a feasible solution!"
+            throw "Failed to find a feasible solution!" unless cb
+            return cb "Failed to find a feasible solution!", result
+
         shortestPathEdges = ld.map shortestPathEdges, (i) ->
             graph.edges[i]
         shortestPathEdges.unshift
@@ -132,32 +112,26 @@ class Cost
             dst: demand.src
             cost: 0
             capacity: demand.demand
-        shortestPathDag = new Graph shortestPathEdges
-        LOG shortestPathDag, 2
+        shortestPathGraph = new Graph shortestPathEdges
 
-        LOG " 4. Calculating the max flow:"
-        flow = maxFlow shortestPathDag, "__root__", demand.dst, capacityFn
-        LOG flow
+        flow = maxFlow shortestPathGraph, "__root__", demand.dst, capacityFn
 
-        @updateWithFlow shortestPathDag, flow.flow, demand
+        for val, i in flow.flow when val.use > 0
+            graphEdge = shortestPathGraph.edges[i]
+            if graphEdge.src is "__root__"
+                demand.demand -= val.use
+            else
+                topoLink = result[graphEdge.topoLinkIdx]
+                topoLink.usage[graphEdge.dir] += val.use
+                topoLink.usagePerDemand[graphEdge.dir][demand._id] ?= 0
+                topoLink.usagePerDemand[graphEdge.dir][demand._id] += val.use
+        delete demands[demand._id] unless demand.demand > 0
 
-        if preemptive
-            setImmediate =>
-                @go done, true
+        if cb
+            setImmediate step, chooseOneDemand demands
         else
-            @go done
-    toString: ->
-        s = JSON.stringify
-        res =      " ====== DEMAND DISTRIBUTION ======\n"
-        res +=     " == non distributed demand: #{s @demand}\n"
-        totalCost = 0
-        for k, v of @cost
-            u = findNextGE v.bandwidth, v.usage
-            totalCost += v.bandwidth[u].cost
-            continue unless v.usage.east + v.usage.west > 0
-            res += "   #{k}. link #{v.src} -> #{v.dst}, cost: #{v.bandwidth[u].cost}\n"
-            res += "      total usage  : #{s v.usage} / #{s v.bandwidth[u]} \n"
-            res += "      distribution : #{s v.usagePerDemand}\n"
-        res +=     " ------- Total cost: #{totalCost} -------"
+            step chooseOneDemand demands
 
-module.exports = Cost
+    step chooseOneDemand demands
+
+module.exports = minimumCost
