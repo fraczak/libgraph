@@ -40,7 +40,7 @@ nextPoint = (bw, point, i=0) ->
 
 getNextStepCostGraph = (topo,result) ->
     new Graph ld.transform result, (res, val, i) ->
-        for dir, {capacity,cost} of nextPoint val.bandwidth, val.usage
+        for dir, {capacity,cost} of nextPoint topo[i].bandwidth, val.usage
             res.push
                 topoLinkIdx: i
                 dir: dir
@@ -62,8 +62,8 @@ chooseOneDemand = (demands) ->
 
 minimumCost = (topo, demands, cb) ->
     result = ld.map topo, (link) ->
-        bandwidth: (ld.clone link.bandwidth).sort (a,b) ->
-            a.cost - b.cost
+#        bandwidth: (ld.clone link.bandwidth).sort (a,b) ->
+#            a.cost - b.cost
         usage:
             east: link.usage?.east or 0
             west: link.usage?.west or 0
@@ -82,11 +82,13 @@ minimumCost = (topo, demands, cb) ->
         res +=     " == non distributed demand: #{s demands}\n"
         totalCost = 0
         for v, k in result
-            u = findNextGE v.bandwidth, v.usage
-            totalCost += v.bandwidth[u].cost
-            continue unless v.usage.east + v.usage.west > 0
-            res += "   #{k}. link #{topo[k].src} -> #{topo[k].dst}, cost: #{v.bandwidth[u].cost}\n"
-            res += "      total usage  : #{s v.usage} / #{s v.bandwidth[u]} \n"
+            bw = topo[k].bandwidth
+            u = findNextGE bw, v.usage
+            totalCost += bw[u].cost
+            continue unless v.usage.east + v.usage.west + bw[u].cost > 0
+            # don't show when nothing to show
+            res += "   #{k}. link #{topo[k].src} -> #{topo[k].dst}, cost: #{bw[u].cost}\n"
+            res += "      total usage  : #{s v.usage} / #{s bw[u]} \n"
             res += "      distribution : #{s v.usagePerDemand}\n"
         res +=     " ------- Total cost: #{totalCost} -------"
 
