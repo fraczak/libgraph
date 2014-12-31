@@ -62,20 +62,20 @@ chooseOneDemand = (demands) ->
 
 minimumCost = (topo, demands, cb) ->
     result = ld.map topo, (link) ->
-#        bandwidth: (ld.clone link.bandwidth).sort (a,b) ->
-#            a.cost - b.cost
         usage:
             east: link.usage?.east or 0
             west: link.usage?.west or 0
         usagePerDemand:
             east: {}
             west: {}
+        # selection: - index of the bandwidth used, which is set at the end
 
 
     demands = ld.transform demands, (res, val, key) ->
         res[key] = ld.assign {}, val, {_id: key}
     , {}
 
+    # for testing only!!!!
     result.toString = ->
         s = JSON.stringify
         res =      " ====== DEMAND DISTRIBUTION ======\n"
@@ -95,6 +95,8 @@ minimumCost = (topo, demands, cb) ->
 
     step = (demand) ->
         if demand is undefined
+            for v, k in result
+                v.selection = findNextGE topo[k].bandwidth, v.usage
             return result unless cb
             return cb null, result
 
