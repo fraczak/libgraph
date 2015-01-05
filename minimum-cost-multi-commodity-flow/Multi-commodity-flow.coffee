@@ -129,4 +129,7 @@ class MultiCommodityFlow
             res += "      details : #{s v}\n"
         res +=     " ------- Total cost: #{totalCost} -------"
 
+    cast: (obj) ->
+        ld.assign this, obj
+
 module.exports = MultiCommodityFlow
