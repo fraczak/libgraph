@@ -129,7 +129,29 @@ class MultiCommodityFlow
             res += "      details : #{s v}\n"
         res +=     " ------- Total cost: #{totalCost} -------"
 
-    cast: (obj) ->
-        ld.assign this, obj
+    # @demand_idx - a demand
+    # @return [ {link:idx, east: 10, west: 0}, ...]
+    usage: (demand_idx) ->
+        MultiCommodityFlow.usage this, demand_idx
+
+    usageGraph: (demand_idx) ->
+        MultiComodityFlow.usageGraph this, demand_idx
+
+MultiCommodityFlow.cast = (obj) ->
+    newObj = Object.create MultiCommodityFlow.prototype
+    ld.assign newObj, obj
+
+MultiCommodityFlow.usage = (commodityFlow, demand_idx) ->
+    ({
+        link: link
+        east: commodityFlow.flows[link].east.perDemand?[demand_idx] ? 0
+        west: commodityFlow.flows[link].west.perDemand?[demand_idx] ? 0
+        } for link in [0..commodityFlow.topo.length] )
+
+MultiComodityFlow.usageGraph = (commodityFlow, demand_idx) ->
+    usage = MultiCommodityFlow.usage commodityFlow, demand_idx
+    topo = commodityFlow.topo
+    edges = ( topo[u.link] for u in usage when 0 < u.east + u.west )
+    graph = new Graph edges
 
 module.exports = MultiCommodityFlow
