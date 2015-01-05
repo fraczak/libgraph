@@ -135,20 +135,21 @@ class MultiCommodityFlow
         MultiCommodityFlow.usage this, demand_idx
 
     usageGraph: (demand_idx) ->
-        MultiComodityFlow.usageGraph this, demand_idx
+        MultiCommodityFlow.usageGraph this, demand_idx
 
 MultiCommodityFlow.cast = (obj) ->
     newObj = Object.create MultiCommodityFlow.prototype
     ld.assign newObj, obj
 
 MultiCommodityFlow.usage = (commodityFlow, demand_idx) ->
+    flows = commodityFlow.flows
     ({
-        link: link
-        east: commodityFlow.flows[link].east.perDemand?[demand_idx] ? 0
-        west: commodityFlow.flows[link].west.perDemand?[demand_idx] ? 0
-        } for link in [0..commodityFlow.topo.length] )
+        link: idx
+        east: flow.east.perDemand?[demand_idx] ? 0
+        west: flow.west.perDemand?[demand_idx] ? 0
+        } for flow, idx in flows )
 
-MultiComodityFlow.usageGraph = (commodityFlow, demand_idx) ->
+MultiCommodityFlow.usageGraph = (commodityFlow, demand_idx) ->
     usage = MultiCommodityFlow.usage commodityFlow, demand_idx
     topo = commodityFlow.topo
     edges = ( topo[u.link] for u in usage when 0 < u.east + u.west )

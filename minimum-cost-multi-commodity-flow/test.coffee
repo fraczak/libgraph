@@ -73,4 +73,14 @@ minCost ring, demand, (err, result) ->
     console.log "Problem: #{err}" if err
     console.log JSON.stringify result, "", 2
 
+CommodityFlow = require "./Multi-commodity-flow"
+
+minCost ring, demand, (err, result) ->
+    console.log "Problem: #{err}" if err
+    console.log jsonStr = JSON.stringify result, "", 2
+    newCommodityFlow = CommodityFlow.cast JSON.parse jsonStr
+    console.log newCommodityFlow.toString()
+    console.log newCommodityFlow.usageGraph 0
+
+#----------------------------------
 require "./example1.coffee"
