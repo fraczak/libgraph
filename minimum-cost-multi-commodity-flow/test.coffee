@@ -71,6 +71,6 @@ demand = [
 
 minCost ring, demand, (err, result) ->
     console.log "Problem: #{err}" if err
-    console.log result.toString()
+    console.log JSON.stringify result, "", 2
 
 require "./example1.coffee"
