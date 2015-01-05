@@ -73,7 +73,7 @@ nextPoint = (bw, point, i=0) ->
 
 class MultiCommodityFlow
     findGE: findGE
-    constructor: (@topo, @demand) ->
+    constructor: (@topo=[], @demand=[]) ->
         @flows = ( {
             east:
                 total: link.usage?.east or 0
