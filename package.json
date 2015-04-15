@@ -15,7 +15,7 @@
   "license": "GPL",
   "dependencies": {
     "lodash": "~2.4.1",
-    "trie": "git+https://github.com/fraczak/trie.git"
+    "trie": "git+https://github.com/fraczak/trie.git#v1.0.1"
   },
   "devDependencies": {
     "coffee-script": "~1.8.0",
