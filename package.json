@@ -8,8 +8,7 @@
     "test": "coffee test.coffee"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fraczak/libgraph.git"
+    "url": "https://github.com/fraczak/libgraph.git"
   },
   "author": "Wojciech Fraczak",
   "license": "GPL",

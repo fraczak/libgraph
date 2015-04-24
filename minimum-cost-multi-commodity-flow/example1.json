@@ -42,13 +42,13 @@
         { "src": "4", "dst": "0", "bandwidth": "$opt_dsl" }
     ],
     "demand": [
-        {"src": "0", "dst": 2, "demand" : 10 },
-        {"src": "0", "dst": 3, "demand" : 10 },
-        {"src": "2", "dst": 0, "demand" : 10 },
-        {"src": "1", "dst": 4, "demand" : 8 },
-        {"src": "4", "dst": 3, "demand" : 8 },
-        {"src": "3", "dst": 1, "demand" : 8 },
-        {"src": "2", "dst": 4, "demand" : 2 },
-        {"src": "4", "dst": 2, "demand" : 2 }
+        {"src": "0", "dst": "2", "demand" : 10 },
+        {"src": "0", "dst": "3", "demand" : 10 },
+        {"src": "2", "dst": "0", "demand" : 10 },
+        {"src": "1", "dst": "4", "demand" : 8 },
+        {"src": "4", "dst": "3", "demand" : 8 },
+        {"src": "3", "dst": "1", "demand" : 8 },
+        {"src": "2", "dst": "4", "demand" : 2 },
+        {"src": "4", "dst": "2", "demand" : 2 }
     ]
 }
