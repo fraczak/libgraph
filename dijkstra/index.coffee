@@ -1,4 +1,4 @@
-trieFactory = require "trie"
+trieFactory = require "trie-array"
 
 pad = (number, size) ->
     res = ""+number

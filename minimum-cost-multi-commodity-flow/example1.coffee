@@ -1,4 +1,4 @@
-ajson = require "ajson"
+ajson = require "dag-json"
 exampleData = require "./example1.json"
 minCost = require "../minimum-cost-multi-commodity-flow"
 
@@ -9,4 +9,4 @@ minCost exampleData.topo, exampleData.demand, (err, result) ->
         console.log err
     else
         console.log result.toString()
-        
+

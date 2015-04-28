@@ -1,6 +1,6 @@
 {
   "name": "libgraph",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "graph lib in js/coffee",
   "main": "Graph.js",
   "scripts": {
@@ -9,16 +9,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/fraczak/libgraph.git"
+    "url": "https://github.com/fraczak/libgraph.git"
   },
   "author": "Wojciech Fraczak",
   "license": "GPL",
   "dependencies": {
-    "coffee-script": "^1.9.2",
     "lodash": "~2.4.1",
-    "trie": "git+https://github.com/fraczak/trie.git"
+    "trie-array": "^1.1.1"
   },
   "devDependencies": {
-    "ajson": "git+https://github.com/fraczak/ajson.git"
+    "coffee-script": "^1.9.2",
+    "dag-json": "^1.0.2"
   }
 }
