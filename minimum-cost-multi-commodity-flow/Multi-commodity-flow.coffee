@@ -19,8 +19,8 @@ findGE = (bw, point, i=0) ->
 #       `[{ east:10, west:20, cost:10 }, { east:20, west:30, cost:100 }]`
 # @point - e.g., `{east: 7, west: 20}`
 # @i - start index in `bw`
-# Calculate the "next trffic point" (and its cost) able to carry
-# non-empty traffic (in both directons)
+# Calculate the "next traffic point" (and its cost) able to carry
+# non-empty traffic (in both directions)
 # @return - e.g. `{east:{cost:0, capacity:3}, west:{cost:90, capacity:10}}`
 #    or `undefined`
 nextPoint = (bw, point, i=0) ->
