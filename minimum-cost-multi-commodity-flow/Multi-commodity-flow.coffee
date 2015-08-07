@@ -85,6 +85,10 @@ class MultiCommodityFlow
         @unsatisfiedDemand_o = ld.transform @demand, (res, val, key) ->
             res[key] = ld.assign {}, val, {_id: key}
         , {}
+        # in case the bandwidth points are not sorted, do:
+        for link in @topo
+            link.bandwidth.sort (x,y) ->
+                x.cost - y.cost
 
     chooseOneUnsatisfiedDemand: ->
         # return val for key, val of @unsatisfiedDemand_o
