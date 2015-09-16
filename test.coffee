@@ -5,6 +5,7 @@ tests = [
     "./find-path/test.coffee"
     "./dijkstra/test.coffee"
     "./bellman-ford/test.coffee"
+    "./topo-order/test.coffee"
 ]
 
 for test in tests
