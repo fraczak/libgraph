@@ -13,7 +13,7 @@ dijkstra = (graph, weightFn) ->
     weightFn ?= -> 1
     toStrFn = do ->
         maxLen = 0
-        maxPrex = 0
+        maxPrec = 0
         for e in edges
             prec = weightFn(e).toString().split(".")[1]?.length or 0
             maxPrec = prec if prec > maxPrec
