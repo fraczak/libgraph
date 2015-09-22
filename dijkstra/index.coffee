@@ -1,12 +1,5 @@
 trieFactory = require "trie-array"
 
-pad = (number, size) ->
-    res = ""+number
-    while (res.length < size)
-        res = "0" + res
-    return res if res.length is size
-    throw "Number #{number} is not correctly stringified"
-
 # generates the Dijkstra data-structure for a given 'graph' and
 # a 'weightFn'.
 # Usage:
@@ -20,11 +13,14 @@ dijkstra = (graph, weightFn) ->
     weightFn ?= -> 1
     toStrFn = do ->
         maxLen = 0
+        maxPrex = 0
         for e in edges
+            prec = weightFn(e).toString().split(".")[1]?.length or 0
+            maxPrec = prec if prec > maxPrec
             maxLen = maxLen + weightFn e
-        maxLen = (""+maxLen).length
+        maxLen = maxLen.toString().split(".")[0].length
         (x) ->
-            pad x.distance, maxLen
+            trieFactory.numToStr maxLen, maxPrec, x.distance
     return {
         weightFn: weightFn
         from: (src) ->
