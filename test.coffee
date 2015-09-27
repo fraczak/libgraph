@@ -7,6 +7,7 @@ tests = [
     "./bellman-ford/test.coffee"
     "./topo-order/test.coffee"
     "./generators/test.coffee"
+    "./Ospf/test.coffee"
 ]
 
 for test in tests

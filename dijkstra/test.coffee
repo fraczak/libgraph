@@ -20,3 +20,7 @@ console.log " - in weight: distance: #{g.inWeight[1].data[2].distance}, Edges:",
 console.log "---------------------"
 console.log "Dijkstra shortest paths: from '1' to 's'"
 console.log dijkstra(g).from(1).edgesTo('s')
+
+console.log "---------------------"
+console.log "Dijkstra shortest path edges: from '1'"
+console.log dijkstra(g).from(1).dagEdges()

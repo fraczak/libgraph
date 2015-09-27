@@ -11,7 +11,8 @@ exports.ring = (n = 3) ->
     edges = circle n
     edges.concat reverse edges
 
-exports.cgrid = (x=2,y=2) ->
+exports.cgrid = (x=2,y) ->
+    y ?= x
     edges = []
     for i in [1..x]
         for j in [1..y]
@@ -19,7 +20,8 @@ exports.cgrid = (x=2,y=2) ->
             edges.push {src:"v#{i-1}.#{j-1}", dst:"v#{i % x}.#{j - 1}"}
     edges
 
-exports.grid = (x=2,y=2) ->
+exports.grid = (x=2,y) ->
+    y ?= x
     edges = []
     for i in [1..x-1]
         for j in [1..y-1]

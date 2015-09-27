@@ -52,7 +52,10 @@ dijkstra = (graph, weightFn) ->
                         pathEdges.push e
                         queue = queue.concat data[edges[e].src].last
                 pathEdges
-            return {src,data,edgesTo}
+            dagEdges = ->
+                [].concat.apply [], (d.last for v,d of data)
+
+            return {src,data,edgesTo,dagEdges}
     }
 
 module.exports = dijkstra
