@@ -1,5 +1,4 @@
 ld = require "lodash"
-Graph = require "../"
 
 exports.reverse = reverse = (edges=[]) ->
     (ld.assign {}, e, {src:e.dst,dst:e.src} for e in edges)

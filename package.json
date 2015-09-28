@@ -1,6 +1,6 @@
 {
   "name": "libgraph",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "graph lib in js/coffee",
   "main": "Graph.js",
   "scripts": {
@@ -15,6 +15,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "lodash": "~2.4.1",
+    "rat.js": "^1.0.0",
     "trie-array": "^1.1.3"
   },
   "devDependencies": {
