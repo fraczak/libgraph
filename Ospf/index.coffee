@@ -49,42 +49,56 @@ class Ospf
         g = new Graph edges
         order = topo_order g
         g.vertices[order[0]].input = new Rat 1
-        #g.vertices[order[0]].input = 100
         for x in order
             v = g.vertices[x]
             continue if ld.isEmpty g.src[x]
             split = v.input.divide g.src[x].length
-            #split = v.input / g.src[x].length
             for e in g.src[x]
                 edges[e].traffic = split
                 e_dst = g.vertices[edges[e].dst]
                 e_dst.input ?= new Rat 0
-                #e_dst.input ?= 0
                 e_dst.input = split.add e_dst.input
-                #e_dst.input = split +  e_dst.input
         return g
 
     utilization: (edge_indexes = [0..@graph.edges.length-1], demands = @demands) ->
-        edges = ld.transform edge_indexes, (res, e) ->
-            res[e] = {}
-        , {}
-        for {name,src,dst,traffic} in demands
-            g = @distribution src, dst
-            continue unless g?
-            for e in g.edges when edges[e.idx]?
-                edges[e.idx][name] = traffic * e.traffic
-        edges
+        updateFn =  (result, index, demand_name, traffic) ->
+            if result[index]?
+                result[index][demand_name] = traffic
+        return @_utilization {}, updateFn, edge_indexes, demands
 
-    edgeUtilization: (e_idx) ->
-        res = {}
-        dems = @demsOnEdge e_idx
+    totalUtilization: (edge_indexes = [0..@graph.edges.length-1], demands = @demands) ->
+        updateFn = (result, index, demand_name, value) ->
+            if result[index]?
+                result[index] += value
+        @_utilization 0, updateFn, edge_indexes, demands
+
+    _utilization: (initValue, updateFn, edge_indexes, dems) ->
+        edges = ld.transform edge_indexes, (res, e) ->
+            res[e] = initValue
+        , {}
+        dems = demandsToDems dems if ld.isArray dems
         for src, dests of dems
+            dijkstra_from = @dijkstra.from src
+            dagEdges = dijkstra_from.dagEdges()
+            continue if ld dagEdges
+                .filter (x) -> edges[x]?
+                .isEmpty()
             for {dst,name,traffic} in dests
-                g = @distribution src, dst
-                continue unless g?
-                for e in g.edges when e.idx is e_idx
-                    res[name] = traffic * e.traffic
-        res
+                shortestPathEdges = dijkstra_from.edgesTo dst
+                dag = new Graph ld.map shortestPathEdges, (idx) =>
+                    ld.assign {}, @graph.edges[idx], {idx}
+                order = topo_order dag
+                dag.vertices[order[0]].input = new Rat 1
+                for x in order
+                    v = dag.vertices[x]
+                    continue if ld.isEmpty dag.src[x]
+                    split = v.input.divide dag.src[x].length
+                    for e in dag.src[x]
+                        updateFn edges, dag.edges[e].idx, name, split * traffic
+                        e_dst = dag.vertices[dag.edges[e].dst]
+                        e_dst.input ?= new Rat 0
+                        e_dst.input = split.add e_dst.input
+        edges
 
 countDems = (dems) ->
     ld(dems)
@@ -95,3 +109,5 @@ Ospf:countDems = Ospf.countDems = countDems
 Ospf:demandsToDems = Ospf.demandsToDems = demandsToDems
 
 module.exports = Ospf
+
+
