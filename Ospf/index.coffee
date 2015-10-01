@@ -105,8 +105,8 @@ countDems = (dems) ->
     .map (dests) -> dests.length
     .reduce (r,n) -> r + n
 
-Ospf:countDems = Ospf.countDems = countDems
-Ospf:demandsToDems = Ospf.demandsToDems = demandsToDems
+Ospf::countDems = Ospf.countDems = countDems
+Ospf::demandsToDems = Ospf.demandsToDems = demandsToDems
 
 module.exports = Ospf
 
