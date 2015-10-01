@@ -5,18 +5,13 @@ Graph      = require "../Graph.coffee"
 
 Ospf = require "./index.coffee"
 
-countDems = (dems) ->
-    ld(dems)
-    .map (dests) -> dests.length
-    .reduce (r,n) -> r + n
+countDems = Ospf.countDems
 
 size = 80
-
 ring = new Graph generators.ring size
 console.log "Ring(#{size}), with #{Object.keys(ring.vertices).length} vertices and #{ring.edges.length} edges"
 
 o = new Ospf ring
-
 console.log "Total number of demands: #{countDems o.dems }"
 
 edge = 0
@@ -43,13 +38,12 @@ for edgeUtilization in [
         " Done:"
     ].concat(res_str,"------------").join("\n")
 
-size = 60
+for {topo,args} in [{topo:"circle",args:[60]}, {topo:"grid",args:[3,5]}]
+    g = new Graph generators[topo] args...
+    console.log " - #{topo}(#{args}), with #{Object.keys(g.vertices).length} vertices and #{g.edges.length} edges"
 
-circle = new Graph generators.circle size
+    o = new Ospf g
+    console.log "Total number of demands: #{countDems o.dems }"
 
-console.log "Circle(#{size}), with #{Object.keys(circle.vertices).length} vertices and #{circle.edges.length} edges"
+    console.log JSON.stringify o.totalUtilization()
 
-o = new Ospf circle
-console.log "Total number of demands: #{countDems o.dems }"
-
-console.log JSON.stringify o.totalUtilization()

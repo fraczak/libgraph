@@ -85,6 +85,7 @@ class Ospf
                 .isEmpty()
             for {dst,name,traffic} in dests
                 shortestPathEdges = dijkstra_from.edgesTo dst
+                continue if ld.isEmpty shortestPathEdges
                 dag = new Graph ld.map shortestPathEdges, (idx) =>
                     ld.assign {}, @graph.edges[idx], {idx}
                 order = topo_order dag
