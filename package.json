@@ -13,8 +13,23 @@
   },
   "author": "Wojciech Fraczak",
   "license": "GPL-3.0",
+  "coffeelintConfig": {
+    "indentation": {
+      "level": "error",
+      "value": 4
+    },
+    "line_endings": {
+      "value": "unix",
+      "level": "error"
+    },
+    "max_line_length": {
+      "value": 120,
+      "level": "warn"
+    }
+  },
   "dependencies": {
-    "lodash": "~2.4.1",
+    "keep-n-first": "^1.0.0",
+    "lodash": "^3.10.1",
     "rat.js": "^1.0.0",
     "trie-array": "^1.1.3"
   },

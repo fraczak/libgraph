@@ -19,7 +19,7 @@ exports.cgrid = (x=2,y) ->
             edges.push {src:"v#{i-1}.#{j-1}", dst:"v#{i % x}.#{j - 1}"}
     edges
 
-exports.grid = (x=2,y) ->
+exports.grid = grid = (x=2,y) ->
     y ?= x
     edges = []
     for i in [1..x-1]
@@ -30,4 +30,8 @@ exports.grid = (x=2,y) ->
     for j in [1..y-1]
         edges.push {src:"v#{x-1}.#{j-1}", dst:"v#{x-1}.#{j}"}
     edges
+
+exports.lattice = (x,y) ->
+    edges = grid x, y
+    edges.concat reverse edges
 
