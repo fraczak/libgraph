@@ -1,4 +1,4 @@
-ld        = require "lodash"
+ld        = require "underscore"
 Graph     = require "../Graph"
 dijkstra  = require "../dijkstra"
 maxFlow   = require "../max-flow"

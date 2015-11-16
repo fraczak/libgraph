@@ -1,20 +1,22 @@
-ld         = require "lodash"
+ld         = require "underscore"
 KeepNFirst = require "keep-n-first"
 Ospf       = require "./index.coffee"
 Graph      = require "../Graph.coffee"
 
 _composeUtilization = (fn) -> (u1,u2) ->
-    ld.transform u1, (res, val, idx) ->
+    ld.reduce u1, (res, val, idx) ->
         if u2[idx]?
             res[idx] = fn val, u2[idx]
         else
             res[idx] = val
+        res
+    , {}
 
 addUtilization = _composeUtilization (x,y) -> x + y
 subUtilization = _composeUtilization (x,y) -> x - y
 
 compMaxUtilFn = (u1, u2) ->
-    res = Ospf.countDems(u1.unfeasibleDems) - Ospf.countDems(u2.unfeasibleDems) 
+    res = Ospf.countDems(u1.unfeasibleDems) - Ospf.countDems(u2.unfeasibleDems)
     if res is 0
         return ld.max(u1.edges) - ld.max(u2.edges)
     res
@@ -27,18 +29,23 @@ failureUtilization = (ospf, utilization, downEdges) ->
     graph = ospf.graph
     edges = graph.edges
     weightFn = ospf.weightFn
-    stopWeight = ld.sum edges, weightFn
+    stopWeight = edges.reduce (r,x) ->
+        r + weightFn(x)
+    , 0
     downEdgesIdx = ld.indexBy downEdges
-    downEdgesMap = ld.transform downEdges, (res,e_idx) ->
+    downEdgesMap = downEdges.reduce (res,e_idx) ->
         res[JSON.stringify edges[e_idx]] = true
+        res
     , {}
 
     baseUtilizationEdges = subUtilization utilization.edges, ospf.totalUtilization(null, demsOnDownEdges).edges
     #console.log {downEdges}
     #console.log JSON.stringify baseUtilizationEdges, "", 2
 
-    tempGraph = new Graph ld.transform edges, (res, e, _idx) ->
+    tempGraph = new Graph edges.reduce (res, e, _idx) ->
         res.push ld.assign {}, e, {_idx} unless downEdgesIdx[_idx]?
+        res
+    , []
 
     reroutedOspf = new Ospf tempGraph, Ospf.demsToDemands(demsOnDownEdges), weightFn
 
@@ -47,8 +54,9 @@ failureUtilization = (ospf, utilization, downEdges) ->
     #console.log JSON.stringify {reroutedUtilization}, "", 2
 
     tempEdges = tempGraph.edges
-    uu = ld.transform reroutedUtilization.edges, (res, u, e) ->
+    uu = ld.reduce reroutedUtilization.edges, (res, u, e) ->
         res[tempEdges[e]._idx] = u
+        res
     , {}
     #console.log JSON.stringify {uu}, "", 2
 

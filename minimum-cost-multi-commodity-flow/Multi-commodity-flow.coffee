@@ -1,4 +1,4 @@
-ld        = require "lodash"
+ld        = require "underscore"
 Graph     = require "../Graph"
 
 
@@ -82,8 +82,9 @@ class MultiCommodityFlow
                 total: link.usage?.west or 0
                 perDemand: {}
             } for link in @topo )
-        @unsatisfiedDemand_o = ld.transform @demand, (res, val, key) ->
+        @unsatisfiedDemand_o = @demand.reduce (res,val, key) ->
             res[key] = ld.assign {}, val, {_id: key}
+            res
         , {}
         # in case the bandwidth points are not sorted, do:
         for link in @topo
@@ -102,7 +103,7 @@ class MultiCommodityFlow
         res
 
     getNextStepCostGraph: ->
-        new Graph ld.transform @flows, (res, val, i) =>
+        new Graph @flows.reduce (res, val, i) =>
             point = nextPoint @topo[i].bandwidth,
                 east: val.east.total
                 west: val.west.total
@@ -114,7 +115,8 @@ class MultiCommodityFlow
                     dst: if dir is "east" then @topo[i].dst else @topo[i].src
                     capacity: capacity
                     cost: cost
-
+            res
+        , []
     toString: ->
         s = JSON.stringify
         res =      " ====== DEMAND DISTRIBUTION ======\n"

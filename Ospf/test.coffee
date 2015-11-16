@@ -1,4 +1,4 @@
-ld = require "lodash"
+ld = require "underscore"
 
 generators = require "../generators/index.coffee"
 Graph      = require "../Graph.coffee"

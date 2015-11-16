@@ -1,4 +1,4 @@
-ld = require "lodash"
+ld = require "underscore"
 
 exports.reverse = reverse = (edges=[]) ->
     (ld.assign {}, e, {src:e.dst,dst:e.src} for e in edges)

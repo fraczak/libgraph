@@ -1,4 +1,4 @@
-ld = require "lodash"
+
 class Graph
     constructor: (@edges,@vertices={}) ->
         for dir in ['src','dst']

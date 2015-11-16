@@ -1,4 +1,4 @@
-ld        = require "lodash"
+ld        = require "underscore"
 Rat       = require "rat.js"
 
 Graph      = require "../"
@@ -7,12 +7,13 @@ dfs        = require "../dfs"
 topo_order = require "../topo-order"
 
 demandsToDems = (demands) ->
-    ld.transform demands, (res, d, i) ->
+    demands.reduce (res, d, i) ->
         {src,dst,name,traffic} = d
         name ?= "#{src}->#{dst} (#{i})"
         traffic ?= 1
         res[src] ?= []
         res[src].push {name,dst,traffic,_idx:i}
+        res
     , {}
 
 demsToDemands = (dems) ->
@@ -28,9 +29,11 @@ class Ospf
     constructor: (@graph, @demands, @weightFn = -> 1) ->
         @dijkstra = dijkstra @graph, @weightFn
         @vertices = Object.keys @graph.vertices
-        @demands ?= ld.transform @vertices, (res, v) =>
+        @demands ?= @vertices.reduce (res, v) =>
             for x in @vertices when x isnt v
                  res.push {src:v,dst:x, name:"#{v}->#{x}", traffic:1}
+            res
+        , []
         @dems = demandsToDems @demands
 
     demsOnEdge: (e) ->
@@ -48,7 +51,7 @@ class Ospf
             reachableDests = {}
 
             for i,e of marked_edges
-                e_edges = ld dagEdges
+                e_edges = ld.chain dagEdges
                     .reject (x) ->
                         marked_edges[x]?
                     .map (idx) ->
@@ -97,8 +100,9 @@ class Ospf
 
     _utilization: (initValue, updateFn, edge_indexes, dems) ->
         unfeasibleDems = {}
-        edges = ld.transform edge_indexes, (res, e) ->
+        edges = edge_indexes.reduce (res, e) ->
             res[e] = initValue
+            res
         , {}
         dems = demandsToDems dems if ld.isArray dems
         for src, dests of dems
@@ -107,7 +111,7 @@ class Ospf
             if ld.isEmpty dagEdges
                 unfeasibleDems[src] = dests
                 continue
-            continue if ld dagEdges
+            continue if ld.chain dagEdges
                 .filter (x) -> edges[x]?
                 .isEmpty()
             for {dst,name,traffic} in dests
@@ -134,5 +138,3 @@ Ospf::demandsToDems = Ospf.demandsToDems = demandsToDems
 Ospf::demsToDemands = Ospf.demsToDemands = demsToDemands
 
 module.exports = Ospf
-
-
