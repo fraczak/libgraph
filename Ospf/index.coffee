@@ -111,9 +111,8 @@ class Ospf
             if ld.isEmpty dagEdges
                 unfeasibleDems[src] = dests
                 continue
-            continue if ld.chain dagEdges
-                .filter (x) -> edges[x]?
-                .isEmpty()
+            continue if ld.isEmpty ld.filter dagEdges, (x) ->
+                edges[x]?
             for {dst,name,traffic} in dests
                 shortestPathEdges = dijkstra_from.edgesTo dst
                 continue if ld.isEmpty shortestPathEdges
