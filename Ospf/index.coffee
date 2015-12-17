@@ -98,7 +98,7 @@ class Ospf
     _utilization: (initValue, updateFn, edge_indexes, dems) ->
         unfeasibleDems = {}
         edges = ld.transform edge_indexes, (res, e) ->
-            res[e] = initValue
+            res[e] = ld.clone initValue
         , {}
         dems = demandsToDems dems if ld.isArray dems
         for src, dests of dems
