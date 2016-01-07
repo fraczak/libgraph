@@ -1,15 +1,13 @@
-ld = require "underscore"
-
 topoOrder = (graph) ->
     starts = []
     result = []
-    inDegree = ld.reduce graph.vertices, (res, val, v) ->
-        if ld.isEmpty graph.dst[v]
-            starts.push v
+    inDegree = {}
+    for v, val of graph.vertices
+        degree = graph.dst[v]?.length
+        if degree
+            inDegree[v] = degree
         else
-            res[v] = graph.dst[v].length
-        res
-    , {}
+            starts.push v
     while x = starts.pop()
         result.push x
         outs = graph.src[x] or []

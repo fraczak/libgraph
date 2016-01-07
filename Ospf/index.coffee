@@ -6,6 +6,18 @@ dijkstra   = require "../dijkstra"
 dfs        = require "../dfs"
 topo_order = require "../topo-order"
 
+class RatFast
+    constructor: (@val = 0) ->
+    add: (x) ->
+        new RatFast @val + x
+    divide: (x) ->
+        new RatFast @val / x
+    valueOf: ->
+        @val
+
+Rat = RatFast
+
+
 demandsToDems = (demands) ->
     demands.reduce (res, d, i) ->
         {src,dst,name,traffic} = d
@@ -114,21 +126,24 @@ class Ospf
             continue if ld.isEmpty ld.filter dagEdges, (x) ->
                 edges[x]?
             for {dst,name,traffic} in dests
+                # IMPORTANT: we assume that the shortest path edges
+                # are given in a reverse topological order!
                 shortestPathEdges = dijkstra_from.edgesTo dst
                 continue if ld.isEmpty shortestPathEdges
-                dag = new Graph ld.map shortestPathEdges, (idx) =>
+                shortestPathEdges = ld.map shortestPathEdges, (idx) =>
                     ld.assign {}, @graph.edges[idx], {idx}
-                order = topo_order dag
-                dag.vertices[order[0]].input = new Rat 1
-                for x in order
-                    v = dag.vertices[x]
-                    continue if ld.isEmpty dag.src[x]
-                    split = v.input.divide dag.src[x].length
-                    for e in dag.src[x]
-                        updateFn edges, dag.edges[e].idx, name, split * traffic
-                        e_dst = dag.vertices[dag.edges[e].dst]
-                        e_dst.input ?= new Rat 0
-                        e_dst.input = split.add e_dst.input
+                dag = new Graph shortestPathEdges
+                last_e_idx = shortestPathEdges.length - 1
+                dag.vertices[shortestPathEdges[last_e_idx].src].input = new Rat 1
+                for i in [last_e_idx..0]
+                    edge = shortestPathEdges[i]
+                    src_node = dag.vertices[edge.src]
+                    dst_node =  dag.vertices[edge.dst]
+                    #order = topo_order dag
+                    split = src_node.input.divide dag.src[edge.src].length
+                    dst_node.input ?= new Rat 0
+                    dst_node.input = split.add dst_node.input
+                    updateFn edges, edge.idx, name, split * traffic
         {edges, unfeasibleDems}
 
 

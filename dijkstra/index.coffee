@@ -44,13 +44,15 @@ dijkstra = (graph, weightFn) ->
                 marker = {}
                 return unless data[dst]
                 queue = [].concat data[dst].last
+                marker[dst] = true
                 pathEdges = []
                 while queue.length > 0
                     e = queue.shift()
-                    if not marker[e]
-                        marker[e] = true
-                        pathEdges.push e
-                        queue = queue.concat data[edges[e].src].last
+                    pathEdges.push e
+                    e_src = edges[e].src
+                    if not marker[e_src]
+                        marker[e_src] = true
+                        queue = queue.concat data[e_src].last
                 pathEdges
             dagEdges = ->
                 [].concat.apply [], (d.last for v,d of data)
