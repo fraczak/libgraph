@@ -126,24 +126,28 @@ class Ospf
             continue if ld.isEmpty ld.filter dagEdges, (x) ->
                 edges[x]?
             for {dst,name,traffic} in dests
-                # IMPORTANT: we assume that the shortest path edges
-                # are given in a reverse topological order!
                 shortestPathEdges = dijkstra_from.edgesTo dst
                 continue if ld.isEmpty shortestPathEdges
                 shortestPathEdges = ld.map shortestPathEdges, (idx) =>
                     ld.assign {}, @graph.edges[idx], {idx}
                 dag = new Graph shortestPathEdges
-                last_e_idx = shortestPathEdges.length - 1
-                dag.vertices[shortestPathEdges[last_e_idx].src].input = new Rat 1
-                for i in [last_e_idx..0]
-                    edge = shortestPathEdges[i]
-                    src_node = dag.vertices[edge.src]
-                    dst_node =  dag.vertices[edge.dst]
-                    #order = topo_order dag
-                    split = src_node.input.divide dag.src[edge.src].length
-                    dst_node.input ?= new Rat 0
-                    dst_node.input = split.add dst_node.input
-                    updateFn edges, edge.idx, name, split * traffic
+
+                order = topo_order dag
+                vertices = dag.vertices
+                for x in order
+                    vertices[x].input = new Rat 0
+                vertices[order[0]].input = new Rat 1
+                for x in order
+                    v = vertices[x]
+                    outEdges = dag.src[x]
+                    continue if ld.isEmpty outEdges
+                    split = v.input.divide outEdges.length
+                    for e in outEdges
+                        e_edge = dag.edges[e]
+                        e_dst = vertices[e_edge.dst]
+                        e_dst.input = split.add e_dst.input
+                        updateFn edges, e_edge.idx, name, split * traffic
+
         {edges, unfeasibleDems}
 
 
