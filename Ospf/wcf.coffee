@@ -70,8 +70,8 @@ wcf = (ospf, failureList, keep, compUtilFn = compMaxUtilFn) ->
     graph = ospf.graph
     edges = graph.edges
 
-    failureList ?= ( [].concat graph.src[v], graph.dst[v] for v of graph.vertices )
-    #failureList ?= ( [i] for i in [0..edges.length - 1] )
+    #failureList ?= ( [].concat graph.src[v], graph.dst[v] for v of graph.vertices )
+    failureList ?= ( [i] for i in [0..edges.length - 1] )
     failureList.push []
     keep ?= edges.length # keep all
     utilization = ospf.totalUtilization()

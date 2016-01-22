@@ -48,7 +48,8 @@ for {topo,args} in [{topo:"circle",args:[60]}, {topo:"grid",args:[3,5]}]
     console.log JSON.stringify o.totalUtilization()
 
 console.log " ---------- FAILURE ANALYSES ---------------"
-for {topo,args} in [{topo:"cgrid", args:[4,3]}, {topo:"ring", args:[10]}, {topo:"circle", args:[10]}, {topo:"lattice",args:[5,3]}]
+#for {topo,args} in [{topo:"cgrid", args:[4,3]}, {topo:"ring", args:[10]}, {topo:"circle", args:[10]}, {topo:"lattice",args:[5,3]}]
+for {topo,args} in [{topo:"lattice",args:[12,10]}]
     console.log "   ---  #{topo}(#{args}):"
     g = new Graph generators[topo] args...
     o = new Ospf g

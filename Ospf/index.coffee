@@ -3,6 +3,7 @@ Rat       = require "rat.js"
 
 Graph      = require "../"
 dijkstra   = require "../dijkstra"
+bellmanFord = require "../bellman-ford"
 dfs        = require "../dfs"
 topo_order = require "../topo-order"
 
@@ -40,6 +41,7 @@ class Ospf
     # demands = [{src:"v1",dst:"v2,name:"...", traffic:"..."}, ...]
     constructor: (@graph, @demands, @weightFn = -> 1) ->
         @dijkstra = dijkstra @graph, @weightFn
+        @bf = bellmanFord @graph, @weightFn
         @vertices = Object.keys @graph.vertices
         @demands ?= @vertices.reduce (res, v) =>
             for x in @vertices when x isnt v
@@ -51,6 +53,21 @@ class Ospf
     demsOnEdge: (e) ->
         @demsOnEdges [e]
     demsOnEdges: (e...) ->
+        edges = ld.map [].concat(e...), (idx) =>
+            @graph.edges[idx]
+        result = {}
+        bf = @bf
+        weightFn = @weightFn
+        check = (src,dst) -> (e) ->
+            bf[src][dst].distance is bf[src][e.src].distance + weightFn(e) + bf[e.dst][dst].distance
+        for src, dests of @dems
+            for dest in dests
+                if ld.some edges, check src, dest.dst
+                    result[src] ?= []
+                    result[src].push dest
+        result
+
+    demsOnEdgesOld: (e...) ->
         e_map = ld.indexBy [].concat e...
         edges =  @graph.edges
         result = {}
