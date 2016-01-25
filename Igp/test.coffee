@@ -38,7 +38,7 @@ do (u = o.utilizationOnEdges([edge])) ->
         " Done:"
     ].concat(res_str,"------------").join("\n")
 
-for {topo,args} in [{topo:"circle",args:[60]}, {topo:"cgrid",args:[20,24]}]
+for {topo,args} in [{topo:"circle",args:[60]}, {topo:"grid",args:[10,6]}]
     g = new Graph generators[topo] args...
     console.log " - #{topo}(#{args}), with #{Object.keys(g.vertices).length} vertices and #{g.edges.length} edges"
 

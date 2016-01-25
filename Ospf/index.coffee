@@ -125,9 +125,13 @@ class Ospf
                 continue
             continue if ld.isEmpty ld.filter dagEdges, (x) ->
                 edges[x]?
-            for {dst,name,traffic} in dests
+            for _dest in dests
+                {dst,name,traffic} = _dest
                 shortestPathEdges = dijkstra_from.edgesTo dst
-                continue if ld.isEmpty shortestPathEdges
+                if ld.isEmpty shortestPathEdges
+                    unfeasibleDems[src] ?= []
+                    unfeasibleDems[src].push _dest
+                    continue
                 shortestPathEdges = ld.map shortestPathEdges, (idx) =>
                     ld.assign {}, @graph.edges[idx], {idx}
                 dag = new Graph shortestPathEdges
