@@ -1,5 +1,5 @@
 Graph    = require "../Graph"
-dijkstra = require "./"
+dijkstra = require "./index.coffee"
 testGraphEdges =  require("./graph.json")
 
 weight = (e) ->
