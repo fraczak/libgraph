@@ -1,24 +1,11 @@
 ld        = require "underscore"
-Rat       = require "rat.js"
-#trieFactory = require "trie-array"
 PriorityQueue = require "js-priority-queue"
-
 
 Graph      = require "../"
 bellmanFord = require "../bellman-ford"
 dfs        = require "../dfs"
 topo_order = require "../topo-order"
 
-class RatFast
-    constructor: (@val = 0) ->
-    add: (x) ->
-        new RatFast @val + x
-    divide: (x) ->
-        new RatFast @val / x
-    valueOf: ->
-        @val
-
-Rat = RatFast
 
 # {"x":{"x->y":{src:"x",dst:"y", name:"x->y", traffic:10}, ...}, ...}
 demandsToDems = (demands) ->
@@ -29,18 +16,6 @@ demandsToDems = (demands) ->
             res[src] = {}
             res
         , {}
-
-# toStrFnGen = (edges,weightFn) ->
-#     maxLen = 0
-#     maxPrec = 0
-#     for e in edges
-#         prec = weightFn(e).toString(36).split(".")[1]?.length or 0
-#         maxPrec = prec if prec > maxPrec
-#         maxLen = maxLen + weightFn e
-#     maxLen = maxLen.toString(36).split(".")[0].length
-#     (x) ->
-#         trieFactory.numToStr maxLen, maxPrec, x.distance, 36
-
 
 class Igp
     # demands = [{src:"v1",dst:"v2,name:"...", traffic:"..."}, ...]
@@ -55,8 +30,6 @@ class Igp
         # {"x":{"x->y":{src:"x",dst:"y", name:"x->y", traffic:10}, ...}, ...}
         @dems = demandsToDems @demands
         @demandsByName = ld.indexBy @demands, "name"
-
-        #@toStrFn = toStrFnGen @graph.edges, @weightFn
 
     edgeIsOnShortestPath: (src,dst,e) ->
         @bf[src]?[dst]?.distance is @bf[src][e.src]?.distance + @weightFn(e) + @bf[e.dst]?[dst]?.distance
@@ -125,8 +98,6 @@ class Igp
                 res
             , {}
 
-            # trie of {node:"x", distance: 12.5}
-            # trie = trieFactory @toStrFn
             pq = new PriorityQueue comparator: (a,b) ->
                 a.distance - b.distance
             pq.queue {node:src, distance: 0}

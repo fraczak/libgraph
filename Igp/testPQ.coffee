@@ -3,7 +3,7 @@ ld = require "underscore"
 generators = require "../generators/index.coffee"
 Graph      = require "../Graph.coffee"
 
-Igp = require "./index.coffee"
+Igp = require "./indexPQ.coffee"
 
 size = 80
 ring = new Graph generators.ring size

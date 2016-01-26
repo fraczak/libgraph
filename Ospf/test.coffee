@@ -38,7 +38,7 @@ do (u = o.utilization([edge], dds)) ->
         " Done:"
     ].concat(res_str,"------------").join("\n")
 
-for {topo,args} in [{topo:"circle",args:[60]}, {topo:"grid",args:[10,6]}]
+for {topo,args} in [{topo:"circle",args:[60]}, {topo:"lattice",args:[20,24]}]
     g = new Graph generators[topo] args...
     console.log " - #{topo}(#{args}), with #{Object.keys(g.vertices).length} vertices and #{g.edges.length} edges"
 
@@ -48,15 +48,15 @@ for {topo,args} in [{topo:"circle",args:[60]}, {topo:"grid",args:[10,6]}]
     console.log  "Number of unfeasible demands :", countDems o.totalUtilization().unfeasibleDems
 
 
-console.log " ---------- FAILURE ANALYSES ---------------"
-for {topo,args} in [{topo:"cgrid", args:[4,3]}, {topo:"ring", args:[10]}, {topo:"circle", args:[10]}, {topo:"lattice",args:[5,3]}]
-#for {topo,args} in [{topo:"lattice",args:[12,10]}]
-    console.log "   ---  #{topo}(#{args}):"
-    g = new Graph generators[topo] args...
-    o = new Ospf g
-    console.log ({
-        unfeasibleDems: Ospf.countDems utilization.unfeasibleDems
-        failureSet
-        utilization:utilization.edges
-        max:ld.max utilization.edges 
-        } for {failureSet,utilization} in wcf o, null, 2)
+# console.log " ---------- FAILURE ANALYSES ---------------"
+# for {topo,args} in [{topo:"cgrid", args:[4,3]}, {topo:"ring", args:[10]}, {topo:"circle", args:[10]}, {topo:"lattice",args:[5,3]}]
+# #for {topo,args} in [{topo:"lattice",args:[12,10]}]
+#     console.log "   ---  #{topo}(#{args}):"
+#     g = new Graph generators[topo] args...
+#     o = new Ospf g
+#     console.log ({
+#         unfeasibleDems: Ospf.countDems utilization.unfeasibleDems
+#         failureSet
+#         utilization:utilization.edges
+#         max:ld.max utilization.edges 
+#         } for {failureSet,utilization} in wcf o, null, 2)
