@@ -1,4 +1,4 @@
-PriorityQueue = require "js-priority-queue"
+PriorityQueue = require "heap"
 
 # generates the Dijkstra data-structure for a given 'graph' and
 # a 'weightFn'.
@@ -15,19 +15,19 @@ dijkstra = (graph, weightFn) ->
         weightFn: weightFn
         from: (src) ->
             data = {}
-            pq = new PriorityQueue comparator: (a,b) ->
+            pq = new PriorityQueue (a,b) ->
                 a.distance - b.distance
             data[src] = last:[], distance:0
             for i in graph.src[src] or []
-                pq.queue i: i, distance: weightFn edges[i]
-            while (pq.length > 0)
-                elem = pq.dequeue()
+                pq.push i: i, distance: weightFn edges[i]
+            while (pq.size() > 0)
+                elem = pq.pop()
                 {i,distance} = elem
                 v = edges[i].dst
                 if (not data[v])
                     data[v] = last: [i], distance: distance
                     for ee in graph.src[v] or []
-                        pq.queue i: ee, distance: distance + weightFn edges[ee]
+                        pq.push i: ee, distance: distance + weightFn edges[ee]
                 else if data[v].distance is distance
                     data[v].last.push i
             edgesTo = (dst) ->

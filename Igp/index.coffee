@@ -1,5 +1,5 @@
 ld        = require "underscore"
-PriorityQueue = require "js-priority-queue"
+PriorityQueue = require "heap"
 
 Graph      = require "../"
 bellmanFord = require "../bellman-ford"
@@ -98,12 +98,12 @@ class Igp
                 res
             , {}
 
-            pq = new PriorityQueue comparator: (a,b) ->
+            pq = new PriorityQueue (a,b) ->
                 a.distance - b.distance
-            pq.queue {node:src, distance: 0}
+            pq.push {node:src, distance: 0}
 
-            while pq.length > 0
-                x = pq.dequeue()
+            while pq.size() > 0
+                x = pq.pop()
 
                 # {e_idx:[d1,d2,...], ...}
                 demsPerEdge = {}
@@ -125,7 +125,7 @@ class Igp
                         e_dst = @graph.edges[e_idx].dst
                         if not load[e_dst]?
                             newNode = {node:e_dst,distance: @bf[src][e_dst].distance}
-                            pq.queue newNode
+                            pq.push newNode
                             load[e_dst] = {}
                         load[e_dst][d] ?= 0
                         load[e_dst][d] += l
