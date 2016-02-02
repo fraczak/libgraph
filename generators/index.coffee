@@ -10,6 +10,21 @@ exports.ring = (n = 3) ->
     edges = circle n
     edges.concat reverse edges
 
+exports.star = star = (n = 3) ->
+    ({src:"v#{n}",dst:"v#{i-1}"} for i in [1..n])
+
+exports.bstar = (n = 3) ->
+    edges = star n
+    edges.concat reverse edges
+
+exports.wheel = wheel = (n=3) ->
+    star n
+    .concat circle n
+
+exports.bwheel = (n=3) ->
+    edges = wheel n
+    edges.concat reverse edges
+
 exports.cgrid = (x=2,y) ->
     y ?= x
     edges = []
