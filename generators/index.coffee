@@ -23,8 +23,8 @@ exports.wheel = wheel = (n=3) ->
 
 exports.click = (n = 3) ->
     edges = []
-    for i in [2..n]
-        edges = edges.concat ({src:"v#{i}",dst:"v#{j}"} for j in [i-1..1])
+    for i in [1..n-1]
+        edges = edges.concat ({src:"v#{i}",dst:"v#{j}"} for j in [i-1..0])
     edges.concat reverse edges
 
 exports.cube = cube = (d=3) ->
@@ -37,7 +37,10 @@ exports.cube = cube = (d=3) ->
         for v in vertices
             v0 = v+"0"
             v1 = v+"1"
-            edges.push {src:v0+suffix,dst:v1+suffix}
+            edges.push {
+                src:"v#{parseInt(v0+suffix,2)}"
+                dst:"v#{parseInt(v1+suffix,2)}"
+            }
             newVertices.push v0
             newVertices.push v1
         vertices = newVertices
@@ -52,8 +55,8 @@ exports.cgrid = (x=2,y) ->
     edges = []
     for i in [1..x]
         for j in [1..y]
-            edges.push {src:"v#{i-1}.#{j-1}", dst:"v#{i-1}.#{j % y}"}
-            edges.push {src:"v#{i-1}.#{j-1}", dst:"v#{i % x}.#{j - 1}"}
+            edges.push {src:"v#{i-1}x#{j-1}", dst:"v#{i-1}x#{j % y}"}
+            edges.push {src:"v#{i-1}x#{j-1}", dst:"v#{i % x}x#{j - 1}"}
     edges
 
 exports.grid = grid = (x=2,y) ->
@@ -61,11 +64,11 @@ exports.grid = grid = (x=2,y) ->
     edges = []
     for i in [1..x-1]
         for j in [1..y-1]
-            edges.push {src:"v#{i-1}.#{j-1}", dst:"v#{i-1}.#{j % y}"}
-            edges.push {src:"v#{i-1}.#{j-1}", dst:"v#{i % x}.#{j-1}"}
-        edges.push {src:"v#{i-1}.#{y-1}", dst:"v#{i}.#{y-1}"}
+            edges.push {src:"v#{i-1}x#{j-1}", dst:"v#{i-1}x#{j % y}"}
+            edges.push {src:"v#{i-1}x#{j-1}", dst:"v#{i % x}x#{j-1}"}
+        edges.push {src:"v#{i-1}x#{y-1}", dst:"v#{i}x#{y-1}"}
     for j in [1..y-1]
-        edges.push {src:"v#{x-1}.#{j-1}", dst:"v#{x-1}.#{j}"}
+        edges.push {src:"v#{x-1}x#{j-1}", dst:"v#{x-1}x#{j}"}
     edges
 
 exports.lattice = (x,y) ->
