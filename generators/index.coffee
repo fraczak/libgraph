@@ -21,6 +21,28 @@ exports.wheel = wheel = (n=3) ->
     star n
     .concat circle n
 
+exports.click = (n = 3) ->
+    edges = []
+    for i in [2..n]
+        edges = edges.concat ({src:"v#{i}",dst:"v#{j}"} for j in [i-1..1])
+    edges.concat reverse edges
+
+exports.cube = cube = (d=3) ->
+    matrix = ("0" for x in [1..d]).join ""
+    vertices = [""]
+    edges=[]
+    for i in [1..d]
+        suffix = matrix.substring i
+        newVertices = []
+        for v in vertices
+            v0 = v+"0"
+            v1 = v+"1"
+            edges.push {src:v0+suffix,dst:v1+suffix}
+            newVertices.push v0
+            newVertices.push v1
+        vertices = newVertices
+    edges
+
 exports.bwheel = (n=3) ->
     edges = wheel n
     edges.concat reverse edges
