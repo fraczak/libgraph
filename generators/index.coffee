@@ -27,24 +27,27 @@ exports.click = (n = 3) ->
         edges = edges.concat ({src:"v#{i}",dst:"v#{j}"} for j in [i-1..0])
     edges.concat reverse edges
 
+exports.bin_cube = bin_cube = (d=3) ->
+    return [{src:"0", dst:"1"}] unless d > 1
+    sub_cube = bin_cube d - 1
+    vertices = {}
+    for {src,dst} in sub_cube
+        vertices[src] = true
+        vertices[dst] = true
+    [].concat ( [
+            {src:src+"0",dst:dst+"0"}
+            {src:src+"1",dst:dst+"1"}
+        ] for {src,dst} in sub_cube )...,
+        ({src:x+"0",dst:x+"1"} for x of vertices)
+
 exports.cube = cube = (d=3) ->
-    matrix = ("0" for x in [1..d]).join ""
-    vertices = [""]
-    edges=[]
-    for i in [1..d]
-        suffix = matrix.substring i
-        newVertices = []
-        for v in vertices
-            v0 = v+"0"
-            v1 = v+"1"
-            edges.push {
-                src:"v#{parseInt(v0+suffix,2)}"
-                dst:"v#{parseInt(v1+suffix,2)}"
-            }
-            newVertices.push v0
-            newVertices.push v1
-        vertices = newVertices
-    edges
+    for {src,dst} in bin_cube d
+        src: "v#{parseInt(src,2)}"
+        dst: "v#{parseInt(dst,2)}"
+
+exports.bcube = (d=3) ->
+    edges = cube d
+    edges.concat reverse edges
 
 exports.bwheel = (n=3) ->
     edges = wheel n

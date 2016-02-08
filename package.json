@@ -1,6 +1,6 @@
 {
   "name": "libgraph",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "graph lib in js/coffee",
   "main": "Graph.js",
   "scripts": {
