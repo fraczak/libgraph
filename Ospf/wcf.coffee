@@ -38,7 +38,7 @@ failureUtilization = (ospf, utilization, downEdges) ->
         res
     , {}
 
-    baseUtilizationEdges = subUtilization utilization.edges, ospf.totalUtilization(null, demsOnDownEdges).edges
+    baseUtilizationEdges = subUtilization utilization.edges, ospf.totalUtilization(undefined, demsOnDownEdges).edges
     #console.log {downEdges}
     #console.log JSON.stringify baseUtilizationEdges, "", 2
 

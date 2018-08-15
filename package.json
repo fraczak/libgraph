@@ -1,6 +1,6 @@
 {
   "name": "libgraph",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "graph lib in js/coffee",
   "main": "Graph.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "coffeelintConfig": {
     "indentation": {
       "level": "error",
-      "value": 4
+      "value": 2
     },
     "line_endings": {
       "value": "unix",
@@ -28,13 +28,13 @@
     }
   },
   "dependencies": {
+    "coffeescript": "^2.3.1",
     "heap": "^0.2.6",
     "keep-n-first": "^1.0.0",
     "rat.js": "^1.2.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
-    "coffee-script": "^1.10.0",
     "dag-json": "*"
   }
 }

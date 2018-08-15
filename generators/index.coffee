@@ -3,11 +3,11 @@ ld = require "underscore"
 exports.reverse = reverse = (edges=[]) ->
     (ld.assign {}, e, {src:e.dst,dst:e.src} for e in edges)
 
-exports.circle = circle = (n = 3) ->
+exports.cycle = cycle = (n = 3) ->
     ({src:"v#{i-1}",dst:"v#{i % n}"} for i in [1..n])
 
 exports.ring = (n = 3) ->
-    edges = circle n
+    edges = cycle n
     edges.concat reverse edges
 
 exports.star = star = (n = 3) ->
@@ -19,7 +19,7 @@ exports.bstar = (n = 3) ->
 
 exports.wheel = wheel = (n=3) ->
     star n
-    .concat circle n
+    .concat cycle n
 
 exports.click = (n = 3) ->
     edges = []
