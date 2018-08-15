@@ -1,5 +1,5 @@
 dfs = (graph, root) ->
-    # { visit: {v: {discoveryTime: 1, closeTime: 20, treeEdge: e}, ...},
+    # { visit: {v: {discoveryTime: 1, closeTime: 20, treeEdge: e, depth: 1}, ...},
     #   treeEdges: [...],
     #   crossEdges: [...]
     #   backEdges: [...] }
@@ -10,8 +10,8 @@ dfs = (graph, root) ->
         crossEdges: []
         backEdges: []
     time = 1
-    _run = (v,treeEdge) ->
-        res.visit[v] = discoveryTime: time++, treeEdge: treeEdge
+    _run = (v,depth,treeEdge) ->
+        res.visit[v] = discoveryTime: time++, treeEdge: treeEdge, depth: depth
         for e in graph.src[v] or []
             y = edges[e].dst
             if res.visit[y]
@@ -21,9 +21,9 @@ dfs = (graph, root) ->
                     res.backEdges.push e
             else
                 res.treeEdges.push e
-                _run y, e
+                _run y, (depth + 1), e
         res.visit[v].closeTime = time++
-    _run root
+    _run root, 0
     res
 
 module.exports = dfs
